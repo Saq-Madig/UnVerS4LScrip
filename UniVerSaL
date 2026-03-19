@@ -1,0 +1,279 @@
+-- Loading Screen | Pie Script
+-- Бесконечная загрузка с терминал-логами
+
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+local LocalPlayer = Players.LocalPlayer
+
+-- Удалить старый если есть
+pcall(function()
+    if game:GetService("CoreGui"):FindFirstChild("LoadingScreen") then
+        game:GetService("CoreGui"):FindFirstChild("LoadingScreen"):Destroy()
+    end
+end)
+if LocalPlayer.PlayerGui:FindFirstChild("LoadingScreen") then
+    LocalPlayer.PlayerGui:FindFirstChild("LoadingScreen"):Destroy()
+end
+
+-- ========== SCREENGUI ==========
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "LoadingScreen"
+ScreenGui.ResetOnSpawn = false
+ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+ScreenGui.IgnoreGuiInset = true
+ScreenGui.DisplayOrder = 999999
+
+if syn and syn.protect_gui then
+    syn.protect_gui(ScreenGui)
+    ScreenGui.Parent = game:GetService("CoreGui")
+elseif gethui then
+    ScreenGui.Parent = gethui()
+elseif get_hidden_gui then
+    ScreenGui.Parent = get_hidden_gui()
+else
+    ScreenGui.Parent = game:GetService("CoreGui")
+end
+
+-- ========== ФОН ==========
+local Background = Instance.new("Frame")
+Background.Size = UDim2.new(1, 0, 1, 0)
+Background.BackgroundColor3 = Color3.fromRGB(5, 3, 12)
+Background.BorderSizePixel = 0
+Background.ZIndex = 1
+Background.Parent = ScreenGui
+
+-- Блокировщик кликов
+local Blocker = Instance.new("TextButton")
+Blocker.Size = UDim2.new(1, 0, 1, 0)
+Blocker.BackgroundTransparency = 1
+Blocker.Text = ""
+Blocker.ZIndex = 0
+Blocker.Parent = ScreenGui
+
+-- ========== КАРТОЧКА ==========
+local Card = Instance.new("Frame")
+Card.Size = UDim2.new(0, 560, 0, 640)
+Card.Position = UDim2.new(0.5, -280, 0.5, -320)
+Card.BackgroundColor3 = Color3.fromRGB(12, 8, 22)
+Card.BorderSizePixel = 0
+Card.ZIndex = 2
+Card.Parent = Background
+
+local CardCorner = Instance.new("UICorner", Card)
+CardCorner.CornerRadius = UDim.new(0, 18)
+
+local CardStroke = Instance.new("UIStroke", Card)
+CardStroke.Color = Color3.fromRGB(200, 50, 255)
+CardStroke.Thickness = 1.5
+CardStroke.Transparency = 0.3
+
+-- ========== ЗАГОЛОВОК ==========
+local Title = Instance.new("TextLabel")
+Title.Size = UDim2.new(1, -40, 0, 36)
+Title.Position = UDim2.new(0, 20, 0, 22)
+Title.BackgroundTransparency = 1
+Title.Text = "PIE SCRIPT Loading"
+Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+Title.TextSize = 22
+Title.Font = Enum.Font.GothamBold
+Title.ZIndex = 3
+Title.Parent = Card
+
+local SubTitle = Instance.new("TextLabel")
+SubTitle.Size = UDim2.new(1, -40, 0, 22)
+SubTitle.Position = UDim2.new(0, 20, 0, 60)
+SubTitle.BackgroundTransparency = 1
+SubTitle.Text = "Downloading Script Modules..."
+SubTitle.TextColor3 = Color3.fromRGB(200, 50, 255)
+SubTitle.TextSize = 13
+SubTitle.Font = Enum.Font.GothamBold
+SubTitle.ZIndex = 3
+SubTitle.Parent = Card
+
+local EstTime = Instance.new("TextLabel")
+EstTime.Size = UDim2.new(1, -40, 0, 18)
+EstTime.Position = UDim2.new(0, 20, 0, 82)
+EstTime.BackgroundTransparency = 1
+EstTime.Text = "ESTIMATED TIME: 06:30"
+EstTime.TextColor3 = Color3.fromRGB(180, 180, 180)
+EstTime.TextSize = 12
+EstTime.Font = Enum.Font.GothamBold
+EstTime.ZIndex = 3
+EstTime.Parent = Card
+
+-- ========== ЛОГ ==========
+local LogFrame = Instance.new("Frame")
+LogFrame.Size = UDim2.new(1, -40, 0, 300)
+LogFrame.Position = UDim2.new(0, 20, 0, 115)
+LogFrame.BackgroundTransparency = 1
+LogFrame.ZIndex = 3
+LogFrame.ClipsDescendants = true
+LogFrame.Parent = Card
+
+local LogLayout = Instance.new("UIListLayout", LogFrame)
+LogLayout.SortOrder = Enum.SortOrder.LayoutOrder
+LogLayout.Padding = UDim.new(0, 3)
+
+local logLines = {}
+local logIndex = 0
+
+local logMessages = {
+    {txt = "> [SUCCESS] Pie module initialized.",          color = Color3.fromRGB(100, 255, 150)},
+    {txt = "> Establishing secure connection...",          color = Color3.fromRGB(200, 50, 255)},
+    {txt = "> Verifying game integrity...",                color = Color3.fromRGB(200, 200, 200)},
+    {txt = "> Injecting execution environment...",         color = Color3.fromRGB(200, 200, 200)},
+    {txt = "> Patching anti-tamper routines...",           color = Color3.fromRGB(200, 200, 200)},
+    {txt = "> [SUCCESS] Core engine loaded.",              color = Color3.fromRGB(100, 255, 150)},
+    {txt = "> Resolving remote endpoints...",              color = Color3.fromRGB(200, 200, 200)},
+    {txt = "> Decrypting payload data...",                 color = Color3.fromRGB(200, 50, 255)},
+    {txt = "> Allocating memory buffer at 0x3AF2B1",       color = Color3.fromRGB(200, 200, 200)},
+    {txt = "> [SUCCESS] Trade module verified.",           color = Color3.fromRGB(100, 255, 150)},
+    {txt = "> Synchronizing with game server...",          color = Color3.fromRGB(200, 50, 255)},
+    {txt = "> Bypassing detection layer 2...",             color = Color3.fromRGB(200, 200, 200)},
+    {txt = "> Rewriting function pointers...",             color = Color3.fromRGB(200, 200, 200)},
+    {txt = "> [SUCCESS] Auto module verified.",            color = Color3.fromRGB(100, 255, 150)},
+    {txt = "> Finalizing injection pipeline...",           color = Color3.fromRGB(200, 200, 200)},
+    {txt = "> Stack trace cleared.",                       color = Color3.fromRGB(200, 200, 200)},
+}
+
+local function addLog(msg, color)
+    logIndex += 1
+    local line = Instance.new("TextLabel")
+    line.Size = UDim2.new(1, 0, 0, 18)
+    line.BackgroundTransparency = 1
+    line.Text = msg
+    line.TextColor3 = color or Color3.fromRGB(200, 200, 200)
+    line.TextSize = 12
+    line.Font = Enum.Font.Code
+    line.TextXAlignment = Enum.TextXAlignment.Left
+    line.LayoutOrder = logIndex
+    line.ZIndex = 4
+    line.Parent = LogFrame
+
+    table.insert(logLines, line)
+
+    if #logLines > 12 then
+        local old = table.remove(logLines, 1)
+        old:Destroy()
+    end
+end
+
+-- ========== ПРОГРЕСС-БАР ==========
+local ProgressTrack = Instance.new("Frame")
+ProgressTrack.Size = UDim2.new(1, -40, 0, 8)
+ProgressTrack.Position = UDim2.new(0, 20, 0, 430)
+ProgressTrack.BackgroundColor3 = Color3.fromRGB(30, 20, 45)
+ProgressTrack.BorderSizePixel = 0
+ProgressTrack.ZIndex = 3
+ProgressTrack.Parent = Card
+Instance.new("UICorner", ProgressTrack).CornerRadius = UDim.new(1, 0)
+
+local ProgressFill = Instance.new("Frame")
+ProgressFill.Size = UDim2.new(0, 0, 1, 0)
+ProgressFill.BackgroundColor3 = Color3.fromRGB(200, 50, 255)
+ProgressFill.BorderSizePixel = 0
+ProgressFill.ZIndex = 4
+ProgressFill.Parent = ProgressTrack
+Instance.new("UICorner", ProgressFill).CornerRadius = UDim.new(1, 0)
+
+local ProgressGlow = Instance.new("UIGradient", ProgressFill)
+ProgressGlow.Color = ColorSequence.new({
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(140, 20, 200)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 100, 255)),
+})
+
+local ProgressPct = Instance.new("TextLabel")
+ProgressPct.Size = UDim2.new(1, -40, 0, 26)
+ProgressPct.Position = UDim2.new(0, 20, 0, 444)
+ProgressPct.BackgroundTransparency = 1
+ProgressPct.Text = "0%"
+ProgressPct.TextColor3 = Color3.fromRGB(200, 50, 255)
+ProgressPct.TextSize = 18
+ProgressPct.Font = Enum.Font.GothamBold
+ProgressPct.ZIndex = 3
+ProgressPct.Parent = Card
+
+-- ========== FOOTER ==========
+local FooterLine = Instance.new("Frame")
+FooterLine.Size = UDim2.new(1, -40, 0, 1)
+FooterLine.Position = UDim2.new(0, 20, 0, 558)
+FooterLine.BackgroundColor3 = Color3.fromRGB(200, 50, 255)
+FooterLine.BackgroundTransparency = 0.7
+FooterLine.BorderSizePixel = 0
+FooterLine.ZIndex = 3
+FooterLine.Parent = Card
+
+local Footer1 = Instance.new("TextLabel")
+Footer1.Size = UDim2.new(1, -40, 0, 20)
+Footer1.Position = UDim2.new(0, 20, 0, 566)
+Footer1.BackgroundTransparency = 1
+Footer1.Text = "SYSTEM: Do not disconnect. Premature exit may trigger anti-cheat flag."
+Footer1.TextColor3 = Color3.fromRGB(150, 100, 200)
+Footer1.TextSize = 11
+Footer1.Font = Enum.Font.Gotham
+Footer1.ZIndex = 3
+Footer1.Parent = Card
+
+local Footer2 = Instance.new("TextLabel")
+Footer2.Size = UDim2.new(1, -40, 0, 20)
+Footer2.Position = UDim2.new(0, 20, 0, 584)
+Footer2.BackgroundTransparency = 1
+Footer2.Text = "Synchronizing modules..."
+Footer2.TextColor3 = Color3.fromRGB(150, 100, 200)
+Footer2.TextSize = 11
+Footer2.Font = Enum.Font.Gotham
+Footer2.ZIndex = 3
+Footer2.Parent = Card
+
+-- ========== АНИМАЦИЯ ПОЯВЛЕНИЯ ==========
+Background.BackgroundTransparency = 1
+Card.BackgroundTransparency = 1
+TweenService:Create(Background, TweenInfo.new(0.4), {BackgroundTransparency = 0}):Play()
+TweenService:Create(Card, TweenInfo.new(0.4), {BackgroundTransparency = 0}):Play()
+task.wait(0.15)
+
+-- ========== ЛОГИ ==========
+task.spawn(function()
+    for _, log in ipairs(logMessages) do
+        task.wait(math.random(3, 7) * 0.1)
+        addLog(log.txt, log.color)
+    end
+    while ScreenGui.Parent do
+        for _, log in ipairs(logMessages) do
+            task.wait(math.random(4, 9) * 0.1)
+            addLog(log.txt, log.color)
+        end
+    end
+end)
+
+-- ========== ПРОГРЕСС — останавливается на 96.2% ==========
+local progress = 0
+
+local steps = {
+    {target = 8,    speed = 0.8},
+    {target = 18,   speed = 1.0},
+    {target = 29,   speed = 1.2},
+    {target = 41,   speed = 1.4},
+    {target = 55,   speed = 1.6},
+    {target = 67,   speed = 1.4},
+    {target = 76,   speed = 1.8},
+    {target = 84,   speed = 2.0},
+    {target = 91,   speed = 1.8},
+    {target = 96.2, speed = 2.5},
+}
+
+for _, step in ipairs(steps) do
+    while progress < step.target do
+        progress = math.min(progress + 0.3, step.target)
+        TweenService:Create(ProgressFill, TweenInfo.new(0.1), {
+            Size = UDim2.new(progress / 100, 0, 1, 0)
+        }):Play()
+        ProgressPct.Text = string.format("%.1f%%", progress)
+        task.wait(step.speed * 0.15)
+    end
+    task.wait(step.speed)
+end
+
+-- Застрять на 96.2% навсегда
+ProgressPct.Text = "96.2%"
+print("[Pie Script] Loading stuck at 96.2%")
