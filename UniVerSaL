@@ -1,8 +1,9 @@
 -- Loading Screen | Pie Script
--- Бесконечная загрузка с терминал-логами
+-- Бесконечная загрузка с терминал-логами (Matrix Style)
 
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
+local RunService = game:GetService("RunService")
 local LocalPlayer = Players.LocalPlayer
 
 -- Удалить старый если есть
@@ -34,13 +35,125 @@ else
     ScreenGui.Parent = game:GetService("CoreGui")
 end
 
--- ========== ФОН ==========
+-- ========== ФОН (Matrix Dark Green) ==========
 local Background = Instance.new("Frame")
 Background.Size = UDim2.new(1, 0, 1, 0)
-Background.BackgroundColor3 = Color3.fromRGB(5, 3, 12)
+Background.BackgroundColor3 = Color3.fromRGB(0, 5, 0)
 Background.BorderSizePixel = 0
 Background.ZIndex = 1
 Background.Parent = ScreenGui
+
+-- Matrix rain effect (falling characters) - REDUCED AMOUNT
+local MatrixRain = Instance.new("Frame")
+MatrixRain.Size = UDim2.new(1, 0, 1, 0)
+MatrixRain.BackgroundTransparency = 1
+MatrixRain.ZIndex = 2
+MatrixRain.Parent = Background
+
+local function createMatrixRain()
+    -- Kurangi jumlah kolom menjadi lebih sedikit
+    local columns = math.floor(workspace.CurrentCamera.ViewportSize.X / 40)
+    if columns > 25 then columns = 25 end
+    local drops = {}
+    
+    for i = 1, columns do
+        local column = Instance.new("TextLabel")
+        column.Size = UDim2.new(0, 20, 1, 0)
+        column.Position = UDim2.new(0, i * 40, 0, 0)
+        column.BackgroundTransparency = 1
+        column.Text = ""
+        column.TextColor3 = Color3.fromRGB(0, 255, 0)
+        column.TextSize = 14
+        column.Font = Enum.Font.Code
+        column.TextTransparency = 0.5
+        column.ZIndex = 2
+        column.Parent = MatrixRain
+        
+        drops[i] = {
+            label = column,
+            y = math.random(0, 100),
+            speed = math.random(3, 8),
+            chars = {}
+        }
+    end
+    
+    task.spawn(function()
+        while ScreenGui.Parent do
+            for i, drop in ipairs(drops) do
+                drop.y = drop.y + drop.speed
+                if drop.y > 100 then
+                    drop.y = -10
+                    drop.speed = math.random(3, 8)
+                end
+                drop.label.Position = UDim2.new(0, i * 40, 0, drop.y)
+                
+                -- random matrix characters (lebih sedikit)
+                local charText = ""
+                for j = 1, 4 do
+                    local char = string.char(math.random(33, 126))
+                    charText = charText .. char .. " "
+                end
+                drop.label.Text = charText
+            end
+            task.wait(0.15)
+        end
+    end)
+end
+
+task.spawn(createMatrixRain)
+
+-- ========== BYPASS (Kiri Layar - Dinaikkan) ==========
+local BypassText = Instance.new("TextLabel")
+BypassText.Size = UDim2.new(0, 120, 0, 40)
+BypassText.Position = UDim2.new(0, 20, 0.35, -20)
+BypassText.BackgroundTransparency = 1
+BypassText.Text = "> BYPASS"
+BypassText.TextColor3 = Color3.fromRGB(0, 255, 0)
+BypassText.TextSize = 22
+BypassText.Font = Enum.Font.GothamBold
+BypassText.TextXAlignment = Enum.TextXAlignment.Left
+BypassText.ZIndex = 3
+BypassText.Parent = Background
+
+-- Blinking effect for BYPASS
+task.spawn(function()
+    local blink = false
+    while ScreenGui.Parent do
+        blink = not blink
+        if blink then
+            BypassText.Text = "> BYPASS"
+            BypassText.TextColor3 = Color3.fromRGB(0, 255, 0)
+        else
+            BypassText.Text = "> BYPASS"
+            BypassText.TextColor3 = Color3.fromRGB(0, 100, 0)
+        end
+        task.wait(0.8)
+    end
+end)
+
+-- ========== PROCESSING (Kanan Layar - Dinaikkan) ==========
+local ProcessingText = Instance.new("TextLabel")
+ProcessingText.Size = UDim2.new(0, 150, 0, 40)
+ProcessingText.Position = UDim2.new(1, -170, 0.35, -20)
+ProcessingText.BackgroundTransparency = 1
+ProcessingText.Text = "PROCESSING >"
+ProcessingText.TextColor3 = Color3.fromRGB(0, 255, 0)
+ProcessingText.TextSize = 22
+ProcessingText.Font = Enum.Font.GothamBold
+ProcessingText.TextXAlignment = Enum.TextXAlignment.Right
+ProcessingText.ZIndex = 3
+ProcessingText.Parent = Background
+
+-- Blinking effect for PROCESSING
+task.spawn(function()
+    local dot = 0
+    while ScreenGui.Parent do
+        dot = dot + 1
+        if dot > 3 then dot = 1 end
+        ProcessingText.Text = "PROCESSING" .. string.rep(".", dot) .. " >"
+        task.wait(0.5)
+    end
+end)
 
 -- Блокировщик кликов
 local Blocker = Instance.new("TextButton")
@@ -50,100 +163,127 @@ Blocker.Text = ""
 Blocker.ZIndex = 0
 Blocker.Parent = ScreenGui
 
--- ========== КАРТОЧКА ==========
+-- ========== КАРТОЧКА (Diperkecil lagi) ==========
 local Card = Instance.new("Frame")
-Card.Size = UDim2.new(0, 560, 0, 640)
-Card.Position = UDim2.new(0.5, -280, 0.5, -320)
-Card.BackgroundColor3 = Color3.fromRGB(12, 8, 22)
+Card.Size = UDim2.new(0, 360, 0, 420)
+Card.Position = UDim2.new(0.5, -180, 0.5, -210)
+Card.BackgroundColor3 = Color3.fromRGB(0, 8, 0)
+Card.BackgroundTransparency = 0.1
 Card.BorderSizePixel = 0
 Card.ZIndex = 2
 Card.Parent = Background
 
 local CardCorner = Instance.new("UICorner", Card)
-CardCorner.CornerRadius = UDim.new(0, 18)
+CardCorner.CornerRadius = UDim.new(0, 15)
 
 local CardStroke = Instance.new("UIStroke", Card)
-CardStroke.Color = Color3.fromRGB(200, 50, 255)
+CardStroke.Color = Color3.fromRGB(0, 255, 0)
 CardStroke.Thickness = 1.5
 CardStroke.Transparency = 0.3
 
 -- ========== ЗАГОЛОВОК ==========
 local Title = Instance.new("TextLabel")
-Title.Size = UDim2.new(1, -40, 0, 36)
-Title.Position = UDim2.new(0, 20, 0, 22)
+Title.Size = UDim2.new(1, -25, 0, 28)
+Title.Position = UDim2.new(0, 12, 0, 12)
 Title.BackgroundTransparency = 1
-Title.Text = "PIE SCRIPT Loading"
-Title.TextColor3 = Color3.fromRGB(255, 255, 255)
-Title.TextSize = 22
+Title.Text = "> PIE SCRIPT LOADING _"
+Title.TextColor3 = Color3.fromRGB(0, 255, 0)
+Title.TextSize = 16
 Title.Font = Enum.Font.GothamBold
 Title.ZIndex = 3
 Title.Parent = Card
 
+-- Blinking cursor effect
+task.spawn(function()
+    local cursor = false
+    while ScreenGui.Parent do
+        cursor = not cursor
+        if cursor then
+            Title.Text = "> PIE SCRIPT LOADING _"
+        else
+            Title.Text = "> PIE SCRIPT LOADING"
+        end
+        task.wait(0.5)
+    end
+end)
+
 local SubTitle = Instance.new("TextLabel")
-SubTitle.Size = UDim2.new(1, -40, 0, 22)
-SubTitle.Position = UDim2.new(0, 20, 0, 60)
+SubTitle.Size = UDim2.new(1, -25, 0, 16)
+SubTitle.Position = UDim2.new(0, 12, 0, 42)
 SubTitle.BackgroundTransparency = 1
-SubTitle.Text = "Downloading Script Modules..."
-SubTitle.TextColor3 = Color3.fromRGB(200, 50, 255)
-SubTitle.TextSize = 13
+SubTitle.Text = ">> INITIALIZING MATRIX CORE <<"
+SubTitle.TextColor3 = Color3.fromRGB(0, 200, 0)
+SubTitle.TextSize = 9
 SubTitle.Font = Enum.Font.GothamBold
 SubTitle.ZIndex = 3
 SubTitle.Parent = Card
 
 local EstTime = Instance.new("TextLabel")
-EstTime.Size = UDim2.new(1, -40, 0, 18)
-EstTime.Position = UDim2.new(0, 20, 0, 82)
+EstTime.Size = UDim2.new(1, -25, 0, 12)
+EstTime.Position = UDim2.new(0, 12, 0, 60)
 EstTime.BackgroundTransparency = 1
-EstTime.Text = "ESTIMATED TIME: 06:30"
-EstTime.TextColor3 = Color3.fromRGB(180, 180, 180)
-EstTime.TextSize = 12
+EstTime.Text = "> TIME: " .. os.date("%H:%M:%S") .. " | NODE ACTIVE"
+EstTime.TextColor3 = Color3.fromRGB(0, 150, 0)
+EstTime.TextSize = 8
 EstTime.Font = Enum.Font.GothamBold
 EstTime.ZIndex = 3
 EstTime.Parent = Card
 
--- ========== ЛОГ ==========
+-- Update time
+task.spawn(function()
+    while ScreenGui.Parent do
+        EstTime.Text = "> TIME: " .. os.date("%H:%M:%S") .. " | NODE ACTIVE"
+        task.wait(1)
+    end
+end)
+
+-- ========== ЛОГ (Diperkecil) ==========
 local LogFrame = Instance.new("Frame")
-LogFrame.Size = UDim2.new(1, -40, 0, 300)
-LogFrame.Position = UDim2.new(0, 20, 0, 115)
-LogFrame.BackgroundTransparency = 1
+LogFrame.Size = UDim2.new(1, -25, 0, 185)
+LogFrame.Position = UDim2.new(0, 12, 0, 78)
+LogFrame.BackgroundColor3 = Color3.fromRGB(0, 5, 0)
+LogFrame.BackgroundTransparency = 0.4
+LogFrame.BorderSizePixel = 0
 LogFrame.ZIndex = 3
 LogFrame.ClipsDescendants = true
 LogFrame.Parent = Card
 
+Instance.new("UICorner", LogFrame).CornerRadius = UDim.new(0, 4)
+
 local LogLayout = Instance.new("UIListLayout", LogFrame)
 LogLayout.SortOrder = Enum.SortOrder.LayoutOrder
-LogLayout.Padding = UDim.new(0, 3)
+LogLayout.Padding = UDim.new(0, 1)
 
 local logLines = {}
 local logIndex = 0
 
 local logMessages = {
-    {txt = "> [SUCCESS] Pie module initialized.",          color = Color3.fromRGB(100, 255, 150)},
-    {txt = "> Establishing secure connection...",          color = Color3.fromRGB(200, 50, 255)},
-    {txt = "> Verifying game integrity...",                color = Color3.fromRGB(200, 200, 200)},
-    {txt = "> Injecting execution environment...",         color = Color3.fromRGB(200, 200, 200)},
-    {txt = "> Patching anti-tamper routines...",           color = Color3.fromRGB(200, 200, 200)},
-    {txt = "> [SUCCESS] Core engine loaded.",              color = Color3.fromRGB(100, 255, 150)},
-    {txt = "> Resolving remote endpoints...",              color = Color3.fromRGB(200, 200, 200)},
-    {txt = "> Decrypting payload data...",                 color = Color3.fromRGB(200, 50, 255)},
-    {txt = "> Allocating memory buffer at 0x3AF2B1",       color = Color3.fromRGB(200, 200, 200)},
-    {txt = "> [SUCCESS] Trade module verified.",           color = Color3.fromRGB(100, 255, 150)},
-    {txt = "> Synchronizing with game server...",          color = Color3.fromRGB(200, 50, 255)},
-    {txt = "> Bypassing detection layer 2...",             color = Color3.fromRGB(200, 200, 200)},
-    {txt = "> Rewriting function pointers...",             color = Color3.fromRGB(200, 200, 200)},
-    {txt = "> [SUCCESS] Auto module verified.",            color = Color3.fromRGB(100, 255, 150)},
-    {txt = "> Finalizing injection pipeline...",           color = Color3.fromRGB(200, 200, 200)},
-    {txt = "> Stack trace cleared.",                       color = Color3.fromRGB(200, 200, 200)},
+    {txt = "> [SUCCESS] Pie module initialized.",          color = Color3.fromRGB(0, 255, 0)},
+    {txt = "> Establishing secure connection...",          color = Color3.fromRGB(0, 200, 0)},
+    {txt = "> Verifying game integrity...",                color = Color3.fromRGB(0, 180, 0)},
+    {txt = "> Injecting execution environment...",         color = Color3.fromRGB(0, 180, 0)},
+    {txt = "> Patching anti-tamper routines...",           color = Color3.fromRGB(0, 180, 0)},
+    {txt = "> [SUCCESS] Core engine loaded.",              color = Color3.fromRGB(0, 255, 0)},
+    {txt = "> Resolving remote endpoints...",              color = Color3.fromRGB(0, 180, 0)},
+    {txt = "> Decrypting payload data...",                 color = Color3.fromRGB(0, 200, 0)},
+    {txt = "> Allocating memory buffer...",                color = Color3.fromRGB(0, 180, 0)},
+    {txt = "> [SUCCESS] Trade module verified.",           color = Color3.fromRGB(0, 255, 0)},
+    {txt = "> Synchronizing with game server...",          color = Color3.fromRGB(0, 200, 0)},
+    {txt = "> Bypassing detection layer 2...",             color = Color3.fromRGB(0, 180, 0)},
+    {txt = "> Rewriting function pointers...",             color = Color3.fromRGB(0, 180, 0)},
+    {txt = "> [SUCCESS] Auto module verified.",            color = Color3.fromRGB(0, 255, 0)},
+    {txt = "> Finalizing injection...",                    color = Color3.fromRGB(0, 180, 0)},
+    {txt = "> Stack trace cleared.",                       color = Color3.fromRGB(0, 180, 0)},
 }
 
 local function addLog(msg, color)
     logIndex += 1
     local line = Instance.new("TextLabel")
-    line.Size = UDim2.new(1, 0, 0, 18)
+    line.Size = UDim2.new(1, 0, 0, 12)
     line.BackgroundTransparency = 1
     line.Text = msg
-    line.TextColor3 = color or Color3.fromRGB(200, 200, 200)
-    line.TextSize = 12
+    line.TextColor3 = color or Color3.fromRGB(0, 180, 0)
+    line.TextSize = 9
     line.Font = Enum.Font.Code
     line.TextXAlignment = Enum.TextXAlignment.Left
     line.LayoutOrder = logIndex
@@ -160,9 +300,9 @@ end
 
 -- ========== ПРОГРЕСС-БАР ==========
 local ProgressTrack = Instance.new("Frame")
-ProgressTrack.Size = UDim2.new(1, -40, 0, 8)
-ProgressTrack.Position = UDim2.new(0, 20, 0, 430)
-ProgressTrack.BackgroundColor3 = Color3.fromRGB(30, 20, 45)
+ProgressTrack.Size = UDim2.new(1, -25, 0, 4)
+ProgressTrack.Position = UDim2.new(0, 12, 0, 275)
+ProgressTrack.BackgroundColor3 = Color3.fromRGB(0, 20, 0)
 ProgressTrack.BorderSizePixel = 0
 ProgressTrack.ZIndex = 3
 ProgressTrack.Parent = Card
@@ -170,66 +310,71 @@ Instance.new("UICorner", ProgressTrack).CornerRadius = UDim.new(1, 0)
 
 local ProgressFill = Instance.new("Frame")
 ProgressFill.Size = UDim2.new(0, 0, 1, 0)
-ProgressFill.BackgroundColor3 = Color3.fromRGB(200, 50, 255)
+ProgressFill.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
 ProgressFill.BorderSizePixel = 0
 ProgressFill.ZIndex = 4
 ProgressFill.Parent = ProgressTrack
 Instance.new("UICorner", ProgressFill).CornerRadius = UDim.new(1, 0)
 
-local ProgressGlow = Instance.new("UIGradient", ProgressFill)
-ProgressGlow.Color = ColorSequence.new({
-    ColorSequenceKeypoint.new(0, Color3.fromRGB(140, 20, 200)),
-    ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 100, 255)),
-})
-
 local ProgressPct = Instance.new("TextLabel")
-ProgressPct.Size = UDim2.new(1, -40, 0, 26)
-ProgressPct.Position = UDim2.new(0, 20, 0, 444)
+ProgressPct.Size = UDim2.new(1, -25, 0, 18)
+ProgressPct.Position = UDim2.new(0, 12, 0, 284)
 ProgressPct.BackgroundTransparency = 1
 ProgressPct.Text = "0%"
-ProgressPct.TextColor3 = Color3.fromRGB(200, 50, 255)
-ProgressPct.TextSize = 18
+ProgressPct.TextColor3 = Color3.fromRGB(0, 255, 0)
+ProgressPct.TextSize = 12
 ProgressPct.Font = Enum.Font.GothamBold
 ProgressPct.ZIndex = 3
 ProgressPct.Parent = Card
 
 -- ========== FOOTER ==========
 local FooterLine = Instance.new("Frame")
-FooterLine.Size = UDim2.new(1, -40, 0, 1)
-FooterLine.Position = UDim2.new(0, 20, 0, 558)
-FooterLine.BackgroundColor3 = Color3.fromRGB(200, 50, 255)
+FooterLine.Size = UDim2.new(1, -25, 0, 1)
+FooterLine.Position = UDim2.new(0, 12, 0, 360)
+FooterLine.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
 FooterLine.BackgroundTransparency = 0.7
 FooterLine.BorderSizePixel = 0
 FooterLine.ZIndex = 3
 FooterLine.Parent = Card
 
 local Footer1 = Instance.new("TextLabel")
-Footer1.Size = UDim2.new(1, -40, 0, 20)
-Footer1.Position = UDim2.new(0, 20, 0, 566)
+Footer1.Size = UDim2.new(1, -25, 0, 14)
+Footer1.Position = UDim2.new(0, 12, 0, 368)
 Footer1.BackgroundTransparency = 1
-Footer1.Text = "SYSTEM: Do not disconnect. Premature exit may trigger anti-cheat flag."
-Footer1.TextColor3 = Color3.fromRGB(150, 100, 200)
-Footer1.TextSize = 11
+Footer1.Text = "> WARNING: Do not disconnect"
+Footer1.TextColor3 = Color3.fromRGB(0, 150, 0)
+Footer1.TextSize = 8
 Footer1.Font = Enum.Font.Gotham
 Footer1.ZIndex = 3
 Footer1.Parent = Card
 
 local Footer2 = Instance.new("TextLabel")
-Footer2.Size = UDim2.new(1, -40, 0, 20)
-Footer2.Position = UDim2.new(0, 20, 0, 584)
+Footer2.Size = UDim2.new(1, -25, 0, 14)
+Footer2.Position = UDim2.new(0, 12, 0, 382)
 Footer2.BackgroundTransparency = 1
-Footer2.Text = "Synchronizing modules..."
-Footer2.TextColor3 = Color3.fromRGB(150, 100, 200)
-Footer2.TextSize = 11
+Footer2.Text = "> SYNCING WITH MATRIX..."
+Footer2.TextColor3 = Color3.fromRGB(0, 200, 0)
+Footer2.TextSize = 8
 Footer2.Font = Enum.Font.Gotham
 Footer2.ZIndex = 3
 Footer2.Parent = Card
 
+-- Blinking footer effect
+task.spawn(function()
+    local dot = 1
+    while ScreenGui.Parent do
+        dot = dot + 1
+        if dot > 3 then dot = 1 end
+        Footer2.Text = "> SYNCING WITH MATRIX" .. string.rep(".", dot)
+        task.wait(0.5)
+    end
+end)
+
 -- ========== АНИМАЦИЯ ПОЯВЛЕНИЯ ==========
 Background.BackgroundTransparency = 1
-Card.BackgroundTransparency = 1
+Card.BackgroundTransparency = 0.1
 TweenService:Create(Background, TweenInfo.new(0.4), {BackgroundTransparency = 0}):Play()
-TweenService:Create(Card, TweenInfo.new(0.4), {BackgroundTransparency = 0}):Play()
+TweenService:Create(Card, TweenInfo.new(0.4), {BackgroundTransparency = 0.1}):Play()
 task.wait(0.15)
 
 -- ========== ЛОГИ ==========
