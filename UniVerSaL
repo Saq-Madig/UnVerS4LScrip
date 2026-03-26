@@ -1,12 +1,12 @@
 -- Loading Screen | Pie Script
--- Бесконечная загрузка с терминал-логами (Matrix Style)
+-- Infinite loading with terminal logs (Cute Theme)
 
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
 local RunService = game:GetService("RunService")
 local LocalPlayer = Players.LocalPlayer
 
--- Удалить старый если есть
+-- Remove old if exists
 pcall(function()
     if game:GetService("CoreGui"):FindFirstChild("LoadingScreen") then
         game:GetService("CoreGui"):FindFirstChild("LoadingScreen"):Destroy()
@@ -35,80 +35,134 @@ else
     ScreenGui.Parent = game:GetService("CoreGui")
 end
 
--- ========== ФОН (Matrix Dark Green) ==========
+-- ========== BACKGROUND (Soft Pink Pastel) ==========
 local Background = Instance.new("Frame")
 Background.Size = UDim2.new(1, 0, 1, 0)
-Background.BackgroundColor3 = Color3.fromRGB(0, 5, 0)
+Background.BackgroundColor3 = Color3.fromRGB(255, 240, 245) -- Soft pink
 Background.BorderSizePixel = 0
 Background.ZIndex = 1
 Background.Parent = ScreenGui
 
--- Matrix rain effect (falling characters) - REDUCED AMOUNT
-local MatrixRain = Instance.new("Frame")
-MatrixRain.Size = UDim2.new(1, 0, 1, 0)
-MatrixRain.BackgroundTransparency = 1
-MatrixRain.ZIndex = 2
-MatrixRain.Parent = Background
+-- Floating hearts effect (instead of matrix rain)
+local FloatingHearts = Instance.new("Frame")
+FloatingHearts.Size = UDim2.new(1, 0, 1, 0)
+FloatingHearts.BackgroundTransparency = 1
+FloatingHearts.ZIndex = 2
+FloatingHearts.Parent = Background
 
-local function createMatrixRain()
-    -- Kurangi jumlah kolom menjadi lebih sedikit
-    local columns = math.floor(workspace.CurrentCamera.ViewportSize.X / 40)
-    if columns > 25 then columns = 25 end
-    local drops = {}
+local function createFloatingHearts()
+    local hearts = {"❤️", "💖", "🌸", "✨", "💕", "🌟"}
+    local items = {}
     
-    for i = 1, columns do
-        local column = Instance.new("TextLabel")
-        column.Size = UDim2.new(0, 20, 1, 0)
-        column.Position = UDim2.new(0, i * 40, 0, 0)
-        column.BackgroundTransparency = 1
-        column.Text = ""
-        column.TextColor3 = Color3.fromRGB(0, 255, 0)
-        column.TextSize = 14
-        column.Font = Enum.Font.Code
-        column.TextTransparency = 0.5
-        column.ZIndex = 2
-        column.Parent = MatrixRain
+    for i = 1, 15 do
+        local heart = Instance.new("TextLabel")
+        heart.Size = UDim2.new(0, 25, 0, 25)
+        heart.Position = UDim2.new(math.random(), 0, math.random(), 0)
+        heart.BackgroundTransparency = 1
+        heart.Text = hearts[math.random(1, #hearts)]
+        heart.TextColor3 = Color3.fromRGB(255, 182, 193) -- Light pink
+        heart.TextSize = math.random(15, 25)
+        heart.Font = Enum.Font.GothamBold
+        heart.TextTransparency = 0.3
+        heart.ZIndex = 2
+        heart.Parent = FloatingHearts
         
-        drops[i] = {
-            label = column,
-            y = math.random(0, 100),
-            speed = math.random(3, 8),
-            chars = {}
-        }
+        table.insert(items, {
+            label = heart,
+            speedX = math.random(-20, 20) / 100,
+            speedY = math.random(10, 30) / 100,
+            posX = math.random(),
+            posY = math.random()
+        })
     end
     
     task.spawn(function()
         while ScreenGui.Parent do
-            for i, drop in ipairs(drops) do
-                drop.y = drop.y + drop.speed
-                if drop.y > 100 then
-                    drop.y = -10
-                    drop.speed = math.random(3, 8)
-                end
-                drop.label.Position = UDim2.new(0, i * 40, 0, drop.y)
+            for _, item in ipairs(items) do
+                item.posX = item.posX + item.speedX
+                item.posY = item.posY + item.speedY
                 
-                -- random matrix characters (lebih sedikit)
-                local charText = ""
-                for j = 1, 4 do
-                    local char = string.char(math.random(33, 126))
-                    charText = charText .. char .. " "
-                end
-                drop.label.Text = charText
+                if item.posX > 1 then item.posX = -0.1 end
+                if item.posX < -0.1 then item.posX = 1 end
+                if item.posY > 1 then item.posY = -0.1 end
+                if item.posY < -0.1 then item.posY = 1 end
+                
+                item.label.Position = UDim2.new(item.posX, 0, item.posY, 0)
             end
-            task.wait(0.15)
+            task.wait(0.1)
         end
     end)
 end
 
-task.spawn(createMatrixRain)
+task.spawn(createFloatingHearts)
 
--- ========== BYPASS (Kiri Layar - Dinaikkan) ==========
+-- ========== 3 FLYING CATS (random movement) ==========
+local catEmojis = {"🐱", "🐈", "🐾", "😺", "😸", "😻"}
+local flyingCats = {}
+
+for i = 1, 3 do
+    local cat = Instance.new("TextLabel")
+    cat.Size = UDim2.new(0, 40, 0, 40)
+    cat.Position = UDim2.new(math.random(), 0, math.random(), 0)
+    cat.BackgroundTransparency = 1
+    cat.Text = catEmojis[math.random(1, #catEmojis)]
+    cat.TextColor3 = Color3.fromRGB(255, 140, 160)
+    cat.TextSize = 35
+    cat.Font = Enum.Font.GothamBold
+    cat.ZIndex = 5
+    cat.Parent = Background
+    
+    table.insert(flyingCats, {
+        label = cat,
+        speedX = (math.random(-30, 30)) / 100,
+        speedY = (math.random(-20, 20)) / 100,
+        posX = math.random(),
+        posY = math.random(),
+        rotation = 0
+    })
+end
+
+task.spawn(function()
+    while ScreenGui.Parent do
+        for _, cat in ipairs(flyingCats) do
+            cat.posX = cat.posX + cat.speedX
+            cat.posY = cat.posY + cat.speedY
+            
+            -- Bounce off edges
+            if cat.posX > 1 then 
+                cat.posX = 1 - (cat.posX - 1)
+                cat.speedX = -cat.speedX
+            end
+            if cat.posX < 0 then 
+                cat.posX = -cat.posX
+                cat.speedX = -cat.speedX
+            end
+            if cat.posY > 1 then 
+                cat.posY = 1 - (cat.posY - 1)
+                cat.speedY = -cat.speedY
+            end
+            if cat.posY < 0 then 
+                cat.posY = -cat.posY
+                cat.speedY = -cat.speedY
+            end
+            
+            cat.label.Position = UDim2.new(cat.posX, 0, cat.posY, 0)
+            
+            -- Random slight rotation for fun
+            cat.rotation = cat.rotation + 2
+            cat.label.Rotation = math.sin(cat.rotation * math.pi / 180) * 10
+        end
+        task.wait(0.05)
+    end
+end)
+
+-- ========== BYPASS (Left side - repositioned for cute theme) ==========
 local BypassText = Instance.new("TextLabel")
 BypassText.Size = UDim2.new(0, 120, 0, 40)
 BypassText.Position = UDim2.new(0, 20, 0.35, -20)
 BypassText.BackgroundTransparency = 1
-BypassText.Text = "> BYPASS"
-BypassText.TextColor3 = Color3.fromRGB(0, 255, 0)
+BypassText.Text = "🌸 BYPASS"
+BypassText.TextColor3 = Color3.fromRGB(255, 120, 150)
 BypassText.TextSize = 22
 BypassText.Font = Enum.Font.GothamBold
 BypassText.TextXAlignment = Enum.TextXAlignment.Left
@@ -121,23 +175,23 @@ task.spawn(function()
     while ScreenGui.Parent do
         blink = not blink
         if blink then
-            BypassText.Text = "> BYPASS"
-            BypassText.TextColor3 = Color3.fromRGB(0, 255, 0)
+            BypassText.Text = "🌸 BYPASS"
+            BypassText.TextColor3 = Color3.fromRGB(255, 120, 150)
         else
-            BypassText.Text = "> BYPASS"
-            BypassText.TextColor3 = Color3.fromRGB(0, 100, 0)
+            BypassText.Text = "🌸 BYPASS"
+            BypassText.TextColor3 = Color3.fromRGB(200, 80, 110)
         end
         task.wait(0.8)
     end
 end)
 
--- ========== PROCESSING (Kanan Layar - Dinaikkan) ==========
+-- ========== PROCESSING (Right side - repositioned for cute theme) ==========
 local ProcessingText = Instance.new("TextLabel")
 ProcessingText.Size = UDim2.new(0, 150, 0, 40)
 ProcessingText.Position = UDim2.new(1, -170, 0.35, -20)
 ProcessingText.BackgroundTransparency = 1
-ProcessingText.Text = "PROCESSING >"
-ProcessingText.TextColor3 = Color3.fromRGB(0, 255, 0)
+ProcessingText.Text = "PROCESSING ✨"
+ProcessingText.TextColor3 = Color3.fromRGB(255, 120, 150)
 ProcessingText.TextSize = 22
 ProcessingText.Font = Enum.Font.GothamBold
 ProcessingText.TextXAlignment = Enum.TextXAlignment.Right
@@ -150,12 +204,12 @@ task.spawn(function()
     while ScreenGui.Parent do
         dot = dot + 1
         if dot > 3 then dot = 1 end
-        ProcessingText.Text = "PROCESSING" .. string.rep(".", dot) .. " >"
+        ProcessingText.Text = "PROCESSING" .. string.rep(".", dot) .. " ✨"
         task.wait(0.5)
     end
 end)
 
--- Блокировщик кликов
+-- Click blocker
 local Blocker = Instance.new("TextButton")
 Blocker.Size = UDim2.new(1, 0, 1, 0)
 Blocker.BackgroundTransparency = 1
@@ -163,31 +217,31 @@ Blocker.Text = ""
 Blocker.ZIndex = 0
 Blocker.Parent = ScreenGui
 
--- ========== КАРТОЧКА (Diperkecil lagi) ==========
+-- ========== CARD (Soft pastel theme) ==========
 local Card = Instance.new("Frame")
 Card.Size = UDim2.new(0, 360, 0, 420)
 Card.Position = UDim2.new(0.5, -180, 0.5, -210)
-Card.BackgroundColor3 = Color3.fromRGB(0, 8, 0)
-Card.BackgroundTransparency = 0.1
+Card.BackgroundColor3 = Color3.fromRGB(255, 245, 250) -- Very light pink
+Card.BackgroundTransparency = 0.05
 Card.BorderSizePixel = 0
 Card.ZIndex = 2
 Card.Parent = Background
 
 local CardCorner = Instance.new("UICorner", Card)
-CardCorner.CornerRadius = UDim.new(0, 15)
+CardCorner.CornerRadius = UDim.new(0, 20)
 
 local CardStroke = Instance.new("UIStroke", Card)
-CardStroke.Color = Color3.fromRGB(0, 255, 0)
+CardStroke.Color = Color3.fromRGB(255, 160, 180)
 CardStroke.Thickness = 1.5
-CardStroke.Transparency = 0.3
+CardStroke.Transparency = 0.2
 
--- ========== ЗАГОЛОВОК ==========
+-- ========== HEADER ==========
 local Title = Instance.new("TextLabel")
 Title.Size = UDim2.new(1, -25, 0, 28)
 Title.Position = UDim2.new(0, 12, 0, 12)
 Title.BackgroundTransparency = 1
-Title.Text = "> PIE SCRIPT LOADING _"
-Title.TextColor3 = Color3.fromRGB(0, 255, 0)
+Title.Text = "🌸 PIE SCRIPT LOADING _"
+Title.TextColor3 = Color3.fromRGB(255, 100, 130)
 Title.TextSize = 16
 Title.Font = Enum.Font.GothamBold
 Title.ZIndex = 3
@@ -199,9 +253,9 @@ task.spawn(function()
     while ScreenGui.Parent do
         cursor = not cursor
         if cursor then
-            Title.Text = "> PIE SCRIPT LOADING _"
+            Title.Text = "🌸 PIE SCRIPT LOADING _"
         else
-            Title.Text = "> PIE SCRIPT LOADING"
+            Title.Text = "🌸 PIE SCRIPT LOADING"
         end
         task.wait(0.5)
     end
@@ -211,8 +265,8 @@ local SubTitle = Instance.new("TextLabel")
 SubTitle.Size = UDim2.new(1, -25, 0, 16)
 SubTitle.Position = UDim2.new(0, 12, 0, 42)
 SubTitle.BackgroundTransparency = 1
-SubTitle.Text = ">> INITIALIZING MATRIX CORE <<"
-SubTitle.TextColor3 = Color3.fromRGB(0, 200, 0)
+SubTitle.Text = ">> CUTE CORE ACTIVATED <<"
+SubTitle.TextColor3 = Color3.fromRGB(255, 140, 160)
 SubTitle.TextSize = 9
 SubTitle.Font = Enum.Font.GothamBold
 SubTitle.ZIndex = 3
@@ -222,8 +276,8 @@ local EstTime = Instance.new("TextLabel")
 EstTime.Size = UDim2.new(1, -25, 0, 12)
 EstTime.Position = UDim2.new(0, 12, 0, 60)
 EstTime.BackgroundTransparency = 1
-EstTime.Text = "> TIME: " .. os.date("%H:%M:%S") .. " | NODE ACTIVE"
-EstTime.TextColor3 = Color3.fromRGB(0, 150, 0)
+EstTime.Text = "✨ TIME: " .. os.date("%H:%M:%S") .. " | KITTEN MODE ✨"
+EstTime.TextColor3 = Color3.fromRGB(200, 120, 140)
 EstTime.TextSize = 8
 EstTime.Font = Enum.Font.GothamBold
 EstTime.ZIndex = 3
@@ -232,23 +286,23 @@ EstTime.Parent = Card
 -- Update time
 task.spawn(function()
     while ScreenGui.Parent do
-        EstTime.Text = "> TIME: " .. os.date("%H:%M:%S") .. " | NODE ACTIVE"
+        EstTime.Text = "✨ TIME: " .. os.date("%H:%M:%S") .. " | KITTEN MODE ✨"
         task.wait(1)
     end
 end)
 
--- ========== ЛОГ (Diperkecil) ==========
+-- ========== LOG FRAME ==========
 local LogFrame = Instance.new("Frame")
 LogFrame.Size = UDim2.new(1, -25, 0, 185)
 LogFrame.Position = UDim2.new(0, 12, 0, 78)
-LogFrame.BackgroundColor3 = Color3.fromRGB(0, 5, 0)
-LogFrame.BackgroundTransparency = 0.4
+LogFrame.BackgroundColor3 = Color3.fromRGB(255, 235, 240)
+LogFrame.BackgroundTransparency = 0.3
 LogFrame.BorderSizePixel = 0
 LogFrame.ZIndex = 3
 LogFrame.ClipsDescendants = true
 LogFrame.Parent = Card
 
-Instance.new("UICorner", LogFrame).CornerRadius = UDim.new(0, 4)
+Instance.new("UICorner", LogFrame).CornerRadius = UDim.new(0, 8)
 
 local LogLayout = Instance.new("UIListLayout", LogFrame)
 LogLayout.SortOrder = Enum.SortOrder.LayoutOrder
@@ -257,23 +311,24 @@ LogLayout.Padding = UDim.new(0, 1)
 local logLines = {}
 local logIndex = 0
 
+-- Cute themed log messages
 local logMessages = {
-    {txt = "> [SUCCESS] Pie module initialized.",          color = Color3.fromRGB(0, 255, 0)},
-    {txt = "> Establishing secure connection...",          color = Color3.fromRGB(0, 200, 0)},
-    {txt = "> Verifying game integrity...",                color = Color3.fromRGB(0, 180, 0)},
-    {txt = "> Injecting execution environment...",         color = Color3.fromRGB(0, 180, 0)},
-    {txt = "> Patching anti-tamper routines...",           color = Color3.fromRGB(0, 180, 0)},
-    {txt = "> [SUCCESS] Core engine loaded.",              color = Color3.fromRGB(0, 255, 0)},
-    {txt = "> Resolving remote endpoints...",              color = Color3.fromRGB(0, 180, 0)},
-    {txt = "> Decrypting payload data...",                 color = Color3.fromRGB(0, 200, 0)},
-    {txt = "> Allocating memory buffer...",                color = Color3.fromRGB(0, 180, 0)},
-    {txt = "> [SUCCESS] Trade module verified.",           color = Color3.fromRGB(0, 255, 0)},
-    {txt = "> Synchronizing with game server...",          color = Color3.fromRGB(0, 200, 0)},
-    {txt = "> Bypassing detection layer 2...",             color = Color3.fromRGB(0, 180, 0)},
-    {txt = "> Rewriting function pointers...",             color = Color3.fromRGB(0, 180, 0)},
-    {txt = "> [SUCCESS] Auto module verified.",            color = Color3.fromRGB(0, 255, 0)},
-    {txt = "> Finalizing injection...",                    color = Color3.fromRGB(0, 180, 0)},
-    {txt = "> Stack trace cleared.",                       color = Color3.fromRGB(0, 180, 0)},
+    {txt = "🌸 [SUCCESS] Pie module initialized.",          color = Color3.fromRGB(255, 120, 150)},
+    {txt = "🐱 Establishing secure connection...",          color = Color3.fromRGB(255, 140, 160)},
+    {txt = "💖 Verifying game integrity...",                color = Color3.fromRGB(255, 130, 150)},
+    {txt = "✨ Injecting cute environment...",               color = Color3.fromRGB(255, 130, 150)},
+    {txt = "🐾 Patching with love...",                      color = Color3.fromRGB(255, 130, 150)},
+    {txt = "🌸 [SUCCESS] Core engine loaded.",              color = Color3.fromRGB(255, 120, 150)},
+    {txt = "🐱 Resolving remote endpoints...",              color = Color3.fromRGB(255, 140, 160)},
+    {txt = "💖 Decrypting sparkles...",                     color = Color3.fromRGB(255, 140, 160)},
+    {txt = "✨ Allocating fluffy buffer...",                color = Color3.fromRGB(255, 130, 150)},
+    {txt = "🐾 [SUCCESS] Trade module verified.",           color = Color3.fromRGB(255, 120, 150)},
+    {txt = "🌸 Synchronizing with game server...",          color = Color3.fromRGB(255, 140, 160)},
+    {txt = "🐱 Bypassing detection with cuteness...",       color = Color3.fromRGB(255, 130, 150)},
+    {txt = "💖 Rewriting function pointers...",             color = Color3.fromRGB(255, 130, 150)},
+    {txt = "✨ [SUCCESS] Auto module verified.",            color = Color3.fromRGB(255, 120, 150)},
+    {txt = "🐾 Finalizing injection...",                    color = Color3.fromRGB(255, 130, 150)},
+    {txt = "🌸 Stack trace cleared.",                       color = Color3.fromRGB(255, 130, 150)},
 }
 
 local function addLog(msg, color)
@@ -282,7 +337,7 @@ local function addLog(msg, color)
     line.Size = UDim2.new(1, 0, 0, 12)
     line.BackgroundTransparency = 1
     line.Text = msg
-    line.TextColor3 = color or Color3.fromRGB(0, 180, 0)
+    line.TextColor3 = color or Color3.fromRGB(200, 100, 120)
     line.TextSize = 9
     line.Font = Enum.Font.Code
     line.TextXAlignment = Enum.TextXAlignment.Left
@@ -298,11 +353,11 @@ local function addLog(msg, color)
     end
 end
 
--- ========== ПРОГРЕСС-БАР ==========
+-- ========== PROGRESS BAR ==========
 local ProgressTrack = Instance.new("Frame")
 ProgressTrack.Size = UDim2.new(1, -25, 0, 4)
 ProgressTrack.Position = UDim2.new(0, 12, 0, 275)
-ProgressTrack.BackgroundColor3 = Color3.fromRGB(0, 20, 0)
+ProgressTrack.BackgroundColor3 = Color3.fromRGB(255, 200, 210)
 ProgressTrack.BorderSizePixel = 0
 ProgressTrack.ZIndex = 3
 ProgressTrack.Parent = Card
@@ -310,7 +365,7 @@ Instance.new("UICorner", ProgressTrack).CornerRadius = UDim.new(1, 0)
 
 local ProgressFill = Instance.new("Frame")
 ProgressFill.Size = UDim2.new(0, 0, 1, 0)
-ProgressFill.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
+ProgressFill.BackgroundColor3 = Color3.fromRGB(255, 120, 150)
 ProgressFill.BorderSizePixel = 0
 ProgressFill.ZIndex = 4
 ProgressFill.Parent = ProgressTrack
@@ -321,7 +376,7 @@ ProgressPct.Size = UDim2.new(1, -25, 0, 18)
 ProgressPct.Position = UDim2.new(0, 12, 0, 284)
 ProgressPct.BackgroundTransparency = 1
 ProgressPct.Text = "0%"
-ProgressPct.TextColor3 = Color3.fromRGB(0, 255, 0)
+ProgressPct.TextColor3 = Color3.fromRGB(255, 120, 150)
 ProgressPct.TextSize = 12
 ProgressPct.Font = Enum.Font.GothamBold
 ProgressPct.ZIndex = 3
@@ -331,8 +386,8 @@ ProgressPct.Parent = Card
 local FooterLine = Instance.new("Frame")
 FooterLine.Size = UDim2.new(1, -25, 0, 1)
 FooterLine.Position = UDim2.new(0, 12, 0, 360)
-FooterLine.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
-FooterLine.BackgroundTransparency = 0.7
+FooterLine.BackgroundColor3 = Color3.fromRGB(255, 160, 180)
+FooterLine.BackgroundTransparency = 0.5
 FooterLine.BorderSizePixel = 0
 FooterLine.ZIndex = 3
 FooterLine.Parent = Card
@@ -341,8 +396,8 @@ local Footer1 = Instance.new("TextLabel")
 Footer1.Size = UDim2.new(1, -25, 0, 14)
 Footer1.Position = UDim2.new(0, 12, 0, 368)
 Footer1.BackgroundTransparency = 1
-Footer1.Text = "> WARNING: Do not disconnect"
-Footer1.TextColor3 = Color3.fromRGB(0, 150, 0)
+Footer1.Text = "🐱 Please wait, loading cuteness..."
+Footer1.TextColor3 = Color3.fromRGB(180, 100, 120)
 Footer1.TextSize = 8
 Footer1.Font = Enum.Font.Gotham
 Footer1.ZIndex = 3
@@ -352,8 +407,8 @@ local Footer2 = Instance.new("TextLabel")
 Footer2.Size = UDim2.new(1, -25, 0, 14)
 Footer2.Position = UDim2.new(0, 12, 0, 382)
 Footer2.BackgroundTransparency = 1
-Footer2.Text = "> SYNCING WITH MATRIX..."
-Footer2.TextColor3 = Color3.fromRGB(0, 200, 0)
+Footer2.Text = "🌸 SYNCING WITH CUTE CORE..."
+Footer2.TextColor3 = Color3.fromRGB(200, 120, 140)
 Footer2.TextSize = 8
 Footer2.Font = Enum.Font.Gotham
 Footer2.ZIndex = 3
@@ -365,19 +420,19 @@ task.spawn(function()
     while ScreenGui.Parent do
         dot = dot + 1
         if dot > 3 then dot = 1 end
-        Footer2.Text = "> SYNCING WITH MATRIX" .. string.rep(".", dot)
+        Footer2.Text = "🌸 SYNCING WITH CUTE CORE" .. string.rep(".", dot)
         task.wait(0.5)
     end
 end)
 
--- ========== АНИМАЦИЯ ПОЯВЛЕНИЯ ==========
+-- ========== APPEARANCE ANIMATION ==========
 Background.BackgroundTransparency = 1
-Card.BackgroundTransparency = 0.1
+Card.BackgroundTransparency = 0.05
 TweenService:Create(Background, TweenInfo.new(0.4), {BackgroundTransparency = 0}):Play()
-TweenService:Create(Card, TweenInfo.new(0.4), {BackgroundTransparency = 0.1}):Play()
+TweenService:Create(Card, TweenInfo.new(0.4), {BackgroundTransparency = 0.05}):Play()
 task.wait(0.15)
 
--- ========== ЛОГИ ==========
+-- ========== LOGS ==========
 task.spawn(function()
     for _, log in ipairs(logMessages) do
         task.wait(math.random(3, 7) * 0.1)
@@ -391,7 +446,7 @@ task.spawn(function()
     end
 end)
 
--- ========== ПРОГРЕСС — останавливается на 96.2% ==========
+-- ========== PROGRESS — stuck at 96.2% ==========
 local progress = 0
 
 local steps = {
@@ -419,6 +474,6 @@ for _, step in ipairs(steps) do
     task.wait(step.speed)
 end
 
--- Застрять на 96.2% навсегда
+-- Stuck at 96.2% forever
 ProgressPct.Text = "96.2%"
 print("[Pie Script] Loading stuck at 96.2%")
