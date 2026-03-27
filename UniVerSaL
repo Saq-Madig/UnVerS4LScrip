@@ -1,5 +1,5 @@
--- Loading Screen | Pie Script
--- Infinite loading with terminal logs (Cute Theme)
+-- Loading Screen | Popcorn & Candy Pie Script
+-- Infinite Loading with Terminal Logs (Popcorn & Candy Style)
 
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
@@ -35,138 +35,83 @@ else
     ScreenGui.Parent = game:GetService("CoreGui")
 end
 
--- ========== BACKGROUND (Soft Pink Pastel) ==========
+-- ========== BACKGROUND (Fun Candy Gradient) ==========
 local Background = Instance.new("Frame")
 Background.Size = UDim2.new(1, 0, 1, 0)
-Background.BackgroundColor3 = Color3.fromRGB(255, 240, 245) -- Soft pink
+Background.BackgroundColor3 = Color3.fromRGB(255, 200, 220)
 Background.BorderSizePixel = 0
 Background.ZIndex = 1
 Background.Parent = ScreenGui
 
--- Floating hearts effect (instead of matrix rain)
-local FloatingHearts = Instance.new("Frame")
-FloatingHearts.Size = UDim2.new(1, 0, 1, 0)
-FloatingHearts.BackgroundTransparency = 1
-FloatingHearts.ZIndex = 2
-FloatingHearts.Parent = Background
+-- Gradient overlay for candy effect
+local GradientOverlay = Instance.new("Frame")
+GradientOverlay.Size = UDim2.new(1, 0, 1, 0)
+GradientOverlay.BackgroundColor3 = Color3.fromRGB(255, 180, 200)
+GradientOverlay.BackgroundTransparency = 0.5
+GradientOverlay.BorderSizePixel = 0
+GradientOverlay.ZIndex = 2
+GradientOverlay.Parent = Background
 
-local function createFloatingHearts()
-    local hearts = {"❤️", "💖", "🌸", "✨", "💕", "🌟"}
-    local items = {}
-    
-    for i = 1, 15 do
-        local heart = Instance.new("TextLabel")
-        heart.Size = UDim2.new(0, 25, 0, 25)
-        heart.Position = UDim2.new(math.random(), 0, math.random(), 0)
-        heart.BackgroundTransparency = 1
-        heart.Text = hearts[math.random(1, #hearts)]
-        heart.TextColor3 = Color3.fromRGB(255, 182, 193) -- Light pink
-        heart.TextSize = math.random(15, 25)
-        heart.Font = Enum.Font.GothamBold
-        heart.TextTransparency = 0.3
-        heart.ZIndex = 2
-        heart.Parent = FloatingHearts
-        
-        table.insert(items, {
-            label = heart,
-            speedX = math.random(-20, 20) / 100,
-            speedY = math.random(10, 30) / 100,
-            posX = math.random(),
-            posY = math.random()
-        })
-    end
-    
-    task.spawn(function()
-        while ScreenGui.Parent do
-            for _, item in ipairs(items) do
-                item.posX = item.posX + item.speedX
-                item.posY = item.posY + item.speedY
-                
-                if item.posX > 1 then item.posX = -0.1 end
-                if item.posX < -0.1 then item.posX = 1 end
-                if item.posY > 1 then item.posY = -0.1 end
-                if item.posY < -0.1 then item.posY = 1 end
-                
-                item.label.Position = UDim2.new(item.posX, 0, item.posY, 0)
-            end
-            task.wait(0.1)
-        end
-    end)
-end
+-- Floating popcorn particles
+local PopcornParticles = Instance.new("Frame")
+PopcornParticles.Size = UDim2.new(1, 0, 1, 0)
+PopcornParticles.BackgroundTransparency = 1
+PopcornParticles.ZIndex = 3
+PopcornParticles.Parent = Background
 
-task.spawn(createFloatingHearts)
+local popcornEmojis = {"🍿", "🍬", "🍭", "🎪", "✨", "⭐", "🌸", "🌈"}
+local particlesList = {}
 
--- ========== 3 FLYING CATS (random movement) ==========
-local catEmojis = {"🐱", "🐈", "🐾", "😺", "😸", "😻"}
-local flyingCats = {}
-
-for i = 1, 3 do
-    local cat = Instance.new("TextLabel")
-    cat.Size = UDim2.new(0, 40, 0, 40)
-    cat.Position = UDim2.new(math.random(), 0, math.random(), 0)
-    cat.BackgroundTransparency = 1
-    cat.Text = catEmojis[math.random(1, #catEmojis)]
-    cat.TextColor3 = Color3.fromRGB(255, 140, 160)
-    cat.TextSize = 35
-    cat.Font = Enum.Font.GothamBold
-    cat.ZIndex = 5
-    cat.Parent = Background
-    
-    table.insert(flyingCats, {
-        label = cat,
-        speedX = (math.random(-30, 30)) / 100,
-        speedY = (math.random(-20, 20)) / 100,
-        posX = math.random(),
-        posY = math.random(),
-        rotation = 0
+for i = 1, 60 do
+    local particle = Instance.new("TextLabel")
+    particle.Size = UDim2.new(0, 20, 0, 20)
+    particle.Position = UDim2.new(math.random(), 0, math.random(), 0)
+    particle.BackgroundTransparency = 1
+    particle.Text = popcornEmojis[math.random(1, #popcornEmojis)]
+    particle.TextColor3 = Color3.fromRGB(
+        math.random(200, 255),
+        math.random(100, 200),
+        math.random(100, 255)
+    )
+    particle.TextSize = math.random(16, 28)
+    particle.Font = Enum.Font.GothamBold
+    particle.ZIndex = 3
+    particle.Parent = PopcornParticles
+    table.insert(particlesList, {
+        label = particle,
+        speed = math.random(10, 40),
+        x = math.random(),
+        rotSpeed = math.random(-2, 2)
     })
 end
 
 task.spawn(function()
     while ScreenGui.Parent do
-        for _, cat in ipairs(flyingCats) do
-            cat.posX = cat.posX + cat.speedX
-            cat.posY = cat.posY + cat.speedY
-            
-            -- Bounce off edges
-            if cat.posX > 1 then 
-                cat.posX = 1 - (cat.posX - 1)
-                cat.speedX = -cat.speedX
+        for _, p in ipairs(particlesList) do
+            local newY = p.label.Position.Y.Scale + (p.speed / 2000)
+            if newY > 1 then 
+                newY = 0
+                p.label.Position = UDim2.new(p.label.Position.X.Scale, 0, newY, 0)
+                p.label.Text = popcornEmojis[math.random(1, #popcornEmojis)]
+            else
+                p.label.Position = UDim2.new(p.label.Position.X.Scale, 0, newY, 0)
             end
-            if cat.posX < 0 then 
-                cat.posX = -cat.posX
-                cat.speedX = -cat.speedX
-            end
-            if cat.posY > 1 then 
-                cat.posY = 1 - (cat.posY - 1)
-                cat.speedY = -cat.speedY
-            end
-            if cat.posY < 0 then 
-                cat.posY = -cat.posY
-                cat.speedY = -cat.speedY
-            end
-            
-            cat.label.Position = UDim2.new(cat.posX, 0, cat.posY, 0)
-            
-            -- Random slight rotation for fun
-            cat.rotation = cat.rotation + 2
-            cat.label.Rotation = math.sin(cat.rotation * math.pi / 180) * 10
         end
-        task.wait(0.05)
+        task.wait(0.03)
     end
 end)
 
--- ========== BYPASS (Left side - repositioned for cute theme) ==========
+-- ========== BYPASS (Kiri Layar - Candy Style) ==========
 local BypassText = Instance.new("TextLabel")
-BypassText.Size = UDim2.new(0, 120, 0, 40)
-BypassText.Position = UDim2.new(0, 20, 0.35, -20)
+BypassText.Size = UDim2.new(0, 140, 0, 45)
+BypassText.Position = UDim2.new(0, 20, 0.35, -22)
 BypassText.BackgroundTransparency = 1
-BypassText.Text = "🌸 BYPASS"
+BypassText.Text = "🍿 BYPASS 🍬"
 BypassText.TextColor3 = Color3.fromRGB(255, 120, 150)
-BypassText.TextSize = 22
+BypassText.TextSize = 24
 BypassText.Font = Enum.Font.GothamBold
 BypassText.TextXAlignment = Enum.TextXAlignment.Left
-BypassText.ZIndex = 3
+BypassText.ZIndex = 4
 BypassText.Parent = Background
 
 -- Blinking effect for BYPASS
@@ -175,41 +120,45 @@ task.spawn(function()
     while ScreenGui.Parent do
         blink = not blink
         if blink then
-            BypassText.Text = "🌸 BYPASS"
+            BypassText.Text = "🍿 BYPASS 🍬"
             BypassText.TextColor3 = Color3.fromRGB(255, 120, 150)
         else
-            BypassText.Text = "🌸 BYPASS"
-            BypassText.TextColor3 = Color3.fromRGB(200, 80, 110)
+            BypassText.Text = "🍬 BYPASS 🍿"
+            BypassText.TextColor3 = Color3.fromRGB(255, 80, 120)
         end
-        task.wait(0.8)
+        task.wait(0.6)
     end
 end)
 
--- ========== PROCESSING (Right side - repositioned for cute theme) ==========
+-- ========== PROCESSING (Kanan Layar) ==========
 local ProcessingText = Instance.new("TextLabel")
-ProcessingText.Size = UDim2.new(0, 150, 0, 40)
-ProcessingText.Position = UDim2.new(1, -170, 0.35, -20)
+ProcessingText.Size = UDim2.new(0, 180, 0, 45)
+ProcessingText.Position = UDim2.new(1, -200, 0.35, -22)
 ProcessingText.BackgroundTransparency = 1
-ProcessingText.Text = "PROCESSING ✨"
-ProcessingText.TextColor3 = Color3.fromRGB(255, 120, 150)
-ProcessingText.TextSize = 22
+ProcessingText.Text = "🍭 PROCESSING 🍬"
+ProcessingText.TextColor3 = Color3.fromRGB(255, 200, 100)
+ProcessingText.TextSize = 24
 ProcessingText.Font = Enum.Font.GothamBold
 ProcessingText.TextXAlignment = Enum.TextXAlignment.Right
-ProcessingText.ZIndex = 3
+ProcessingText.ZIndex = 4
 ProcessingText.Parent = Background
 
 -- Blinking effect for PROCESSING
 task.spawn(function()
     local dot = 0
+    local candies = {"🍬", "🍭", "🍬", "🍫"}
+    local idx = 1
     while ScreenGui.Parent do
         dot = dot + 1
+        idx = idx + 1
+        if idx > #candies then idx = 1 end
         if dot > 3 then dot = 1 end
-        ProcessingText.Text = "PROCESSING" .. string.rep(".", dot) .. " ✨"
+        ProcessingText.Text = "PROCESSING" .. string.rep(".", dot) .. " " .. candies[idx]
         task.wait(0.5)
     end
 end)
 
--- Click blocker
+-- Blocker
 local Blocker = Instance.new("TextButton")
 Blocker.Size = UDim2.new(1, 0, 1, 0)
 Blocker.BackgroundTransparency = 1
@@ -217,132 +166,140 @@ Blocker.Text = ""
 Blocker.ZIndex = 0
 Blocker.Parent = ScreenGui
 
--- ========== CARD (Soft pastel theme) ==========
+-- ========== CARD (Popcorn Box Style) ==========
 local Card = Instance.new("Frame")
-Card.Size = UDim2.new(0, 360, 0, 420)
-Card.Position = UDim2.new(0.5, -180, 0.5, -210)
-Card.BackgroundColor3 = Color3.fromRGB(255, 245, 250) -- Very light pink
+Card.Size = UDim2.new(0, 420, 0, 470)
+Card.Position = UDim2.new(0.5, -210, 0.5, -235)
+Card.BackgroundColor3 = Color3.fromRGB(255, 240, 210)
 Card.BackgroundTransparency = 0.05
 Card.BorderSizePixel = 0
-Card.ZIndex = 2
+Card.ZIndex = 3
 Card.Parent = Background
 
 local CardCorner = Instance.new("UICorner", Card)
-CardCorner.CornerRadius = UDim.new(0, 20)
+CardCorner.CornerRadius = UDim.new(0, 25)
 
 local CardStroke = Instance.new("UIStroke", Card)
-CardStroke.Color = Color3.fromRGB(255, 160, 180)
-CardStroke.Thickness = 1.5
+CardStroke.Color = Color3.fromRGB(255, 180, 100)
+CardStroke.Thickness = 3
 CardStroke.Transparency = 0.2
+
+-- Candy stripe pattern on edges
+local StripeTop = Instance.new("Frame")
+StripeTop.Size = UDim2.new(1, 0, 0, 6)
+StripeTop.Position = UDim2.new(0, 0, 0, 0)
+StripeTop.BackgroundColor3 = Color3.fromRGB(255, 100, 150)
+StripeTop.BorderSizePixel = 0
+StripeTop.ZIndex = 4
+StripeTop.Parent = Card
+Instance.new("UICorner", StripeTop).CornerRadius = UDim.new(0, 25)
+
+local StripeBottom = Instance.new("Frame")
+StripeBottom.Size = UDim2.new(1, 0, 0, 6)
+StripeBottom.Position = UDim2.new(0, 0, 1, -6)
+StripeBottom.BackgroundColor3 = Color3.fromRGB(100, 200, 150)
+StripeBottom.BorderSizePixel = 0
+StripeBottom.ZIndex = 4
+StripeBottom.Parent = Card
+Instance.new("UICorner", StripeBottom).CornerRadius = UDim.new(0, 25)
 
 -- ========== HEADER ==========
 local Title = Instance.new("TextLabel")
-Title.Size = UDim2.new(1, -25, 0, 28)
+Title.Size = UDim2.new(1, -25, 0, 40)
 Title.Position = UDim2.new(0, 12, 0, 12)
 Title.BackgroundTransparency = 1
-Title.Text = "🌸 PIE SCRIPT LOADING _"
-Title.TextColor3 = Color3.fromRGB(255, 100, 130)
-Title.TextSize = 16
+Title.Text = "🍿 POPCORN & CANDY 🍬"
+Title.TextColor3 = Color3.fromRGB(255, 100, 150)
+Title.TextSize = 22
 Title.Font = Enum.Font.GothamBold
-Title.ZIndex = 3
+Title.ZIndex = 4
 Title.Parent = Card
 
--- Blinking cursor effect
-task.spawn(function()
-    local cursor = false
-    while ScreenGui.Parent do
-        cursor = not cursor
-        if cursor then
-            Title.Text = "🌸 PIE SCRIPT LOADING _"
-        else
-            Title.Text = "🌸 PIE SCRIPT LOADING"
-        end
-        task.wait(0.5)
-    end
-end)
-
 local SubTitle = Instance.new("TextLabel")
-SubTitle.Size = UDim2.new(1, -25, 0, 16)
-SubTitle.Position = UDim2.new(0, 12, 0, 42)
+SubTitle.Size = UDim2.new(1, -25, 0, 22)
+SubTitle.Position = UDim2.new(0, 12, 0, 54)
 SubTitle.BackgroundTransparency = 1
-SubTitle.Text = ">> CUTE CORE ACTIVATED <<"
-SubTitle.TextColor3 = Color3.fromRGB(255, 140, 160)
-SubTitle.TextSize = 9
+SubTitle.Text = ">> CANDY PIE-SCRIPT v3.0 <<"
+SubTitle.TextColor3 = Color3.fromRGB(255, 180, 80)
+SubTitle.TextSize = 12
 SubTitle.Font = Enum.Font.GothamBold
-SubTitle.ZIndex = 3
+SubTitle.ZIndex = 4
 SubTitle.Parent = Card
 
 local EstTime = Instance.new("TextLabel")
-EstTime.Size = UDim2.new(1, -25, 0, 12)
-EstTime.Position = UDim2.new(0, 12, 0, 60)
+EstTime.Size = UDim2.new(1, -25, 0, 16)
+EstTime.Position = UDim2.new(0, 12, 0, 78)
 EstTime.BackgroundTransparency = 1
-EstTime.Text = "✨ TIME: " .. os.date("%H:%M:%S") .. " | KITTEN MODE ✨"
-EstTime.TextColor3 = Color3.fromRGB(200, 120, 140)
-EstTime.TextSize = 8
+EstTime.Text = "🍭 TIME: " .. os.date("%H:%M:%S") .. " | CANDY MODE ACTIVE 🍭"
+EstTime.TextColor3 = Color3.fromRGB(255, 140, 100)
+EstTime.TextSize = 10
 EstTime.Font = Enum.Font.GothamBold
-EstTime.ZIndex = 3
+EstTime.ZIndex = 4
 EstTime.Parent = Card
 
--- Update time
 task.spawn(function()
     while ScreenGui.Parent do
-        EstTime.Text = "✨ TIME: " .. os.date("%H:%M:%S") .. " | KITTEN MODE ✨"
+        EstTime.Text = "🍭 TIME: " .. os.date("%H:%M:%S") .. " | CANDY MODE ACTIVE 🍭"
         task.wait(1)
     end
 end)
 
--- ========== LOG FRAME ==========
+-- ========== LOG FRAME (Popcorn Theme) ==========
 local LogFrame = Instance.new("Frame")
-LogFrame.Size = UDim2.new(1, -25, 0, 185)
-LogFrame.Position = UDim2.new(0, 12, 0, 78)
-LogFrame.BackgroundColor3 = Color3.fromRGB(255, 235, 240)
+LogFrame.Size = UDim2.new(1, -25, 0, 210)
+LogFrame.Position = UDim2.new(0, 12, 0, 102)
+LogFrame.BackgroundColor3 = Color3.fromRGB(255, 220, 180)
 LogFrame.BackgroundTransparency = 0.3
 LogFrame.BorderSizePixel = 0
-LogFrame.ZIndex = 3
+LogFrame.ZIndex = 4
 LogFrame.ClipsDescendants = true
 LogFrame.Parent = Card
 
-Instance.new("UICorner", LogFrame).CornerRadius = UDim.new(0, 8)
+Instance.new("UICorner", LogFrame).CornerRadius = UDim.new(0, 15)
+
+local LogStroke = Instance.new("UIStroke", LogFrame)
+LogStroke.Color = Color3.fromRGB(255, 180, 100)
+LogStroke.Thickness = 1
+LogStroke.Transparency = 0.5
 
 local LogLayout = Instance.new("UIListLayout", LogFrame)
 LogLayout.SortOrder = Enum.SortOrder.LayoutOrder
-LogLayout.Padding = UDim.new(0, 1)
+LogLayout.Padding = UDim.new(0, 2)
 
 local logLines = {}
 local logIndex = 0
 
--- Cute themed log messages
 local logMessages = {
-    {txt = "🌸 [SUCCESS] Pie module initialized.",          color = Color3.fromRGB(255, 120, 150)},
-    {txt = "🐱 Establishing secure connection...",          color = Color3.fromRGB(255, 140, 160)},
-    {txt = "💖 Verifying game integrity...",                color = Color3.fromRGB(255, 130, 150)},
-    {txt = "✨ Injecting cute environment...",               color = Color3.fromRGB(255, 130, 150)},
-    {txt = "🐾 Patching with love...",                      color = Color3.fromRGB(255, 130, 150)},
-    {txt = "🌸 [SUCCESS] Core engine loaded.",              color = Color3.fromRGB(255, 120, 150)},
-    {txt = "🐱 Resolving remote endpoints...",              color = Color3.fromRGB(255, 140, 160)},
-    {txt = "💖 Decrypting sparkles...",                     color = Color3.fromRGB(255, 140, 160)},
-    {txt = "✨ Allocating fluffy buffer...",                color = Color3.fromRGB(255, 130, 150)},
-    {txt = "🐾 [SUCCESS] Trade module verified.",           color = Color3.fromRGB(255, 120, 150)},
-    {txt = "🌸 Synchronizing with game server...",          color = Color3.fromRGB(255, 140, 160)},
-    {txt = "🐱 Bypassing detection with cuteness...",       color = Color3.fromRGB(255, 130, 150)},
-    {txt = "💖 Rewriting function pointers...",             color = Color3.fromRGB(255, 130, 150)},
-    {txt = "✨ [SUCCESS] Auto module verified.",            color = Color3.fromRGB(255, 120, 150)},
-    {txt = "🐾 Finalizing injection...",                    color = Color3.fromRGB(255, 130, 150)},
-    {txt = "🌸 Stack trace cleared.",                       color = Color3.fromRGB(255, 130, 150)},
+    {txt = "🍿 [POPCORN] Pie module initialized!",          color = Color3.fromRGB(255, 100, 150)},
+    {txt = "🍬 Opening candy wrapper...",                    color = Color3.fromRGB(255, 180, 100)},
+    {txt = "🍭 Popping fresh kernels...",                    color = Color3.fromRGB(255, 200, 80)},
+    {txt = "✨ Sprinkling sugar crystals...",                color = Color3.fromRGB(255, 160, 120)},
+    {txt = "🎪 Setting up carnival booth...",                color = Color3.fromRGB(100, 200, 150)},
+    {txt = "🍿 [SUCCESS] Popcorn engine loaded!",            color = Color3.fromRGB(255, 100, 150)},
+    {txt = "🍬 Mixing candy flavors...",                     color = Color3.fromRGB(255, 180, 100)},
+    {txt = "🌈 Adding rainbow sprinkles...",                 color = Color3.fromRGB(200, 150, 255)},
+    {txt = "⭐ Adding magic sparkles...",                    color = Color3.fromRGB(255, 220, 100)},
+    {txt = "🍭 [SUCCESS] Candy module verified!",            color = Color3.fromRGB(255, 100, 150)},
+    {txt = "🍿 Popping more popcorn...",                     color = Color3.fromRGB(255, 200, 80)},
+    {txt = "🍬 Unwrapping surprise candy...",                color = Color3.fromRGB(255, 160, 120)},
+    {txt = "✨ Making everything sweet...",                  color = Color3.fromRGB(200, 150, 255)},
+    {txt = "🍭 [SUCCESS] Sweet mode activated!",             color = Color3.fromRGB(255, 100, 150)},
+    {txt = "🎪 Finalizing carnival setup...",                color = Color3.fromRGB(100, 200, 150)},
+    {txt = "🌈 Ready for fun times!",                        color = Color3.fromRGB(255, 220, 100)},
 }
 
 local function addLog(msg, color)
     logIndex += 1
     local line = Instance.new("TextLabel")
-    line.Size = UDim2.new(1, 0, 0, 12)
+    line.Size = UDim2.new(1, 0, 0, 14)
     line.BackgroundTransparency = 1
     line.Text = msg
-    line.TextColor3 = color or Color3.fromRGB(200, 100, 120)
-    line.TextSize = 9
-    line.Font = Enum.Font.Code
+    line.TextColor3 = color or Color3.fromRGB(255, 160, 100)
+    line.TextSize = 10
+    line.Font = Enum.Font.Gotham
     line.TextXAlignment = Enum.TextXAlignment.Left
     line.LayoutOrder = logIndex
-    line.ZIndex = 4
+    line.ZIndex = 5
     line.Parent = LogFrame
 
     table.insert(logLines, line)
@@ -353,13 +310,13 @@ local function addLog(msg, color)
     end
 end
 
--- ========== PROGRESS BAR ==========
+-- ========== PROGRESS BAR (Candy Stripe) ==========
 local ProgressTrack = Instance.new("Frame")
-ProgressTrack.Size = UDim2.new(1, -25, 0, 4)
-ProgressTrack.Position = UDim2.new(0, 12, 0, 275)
-ProgressTrack.BackgroundColor3 = Color3.fromRGB(255, 200, 210)
+ProgressTrack.Size = UDim2.new(1, -25, 0, 8)
+ProgressTrack.Position = UDim2.new(0, 12, 0, 325)
+ProgressTrack.BackgroundColor3 = Color3.fromRGB(255, 200, 160)
 ProgressTrack.BorderSizePixel = 0
-ProgressTrack.ZIndex = 3
+ProgressTrack.ZIndex = 4
 ProgressTrack.Parent = Card
 Instance.new("UICorner", ProgressTrack).CornerRadius = UDim.new(1, 0)
 
@@ -367,65 +324,70 @@ local ProgressFill = Instance.new("Frame")
 ProgressFill.Size = UDim2.new(0, 0, 1, 0)
 ProgressFill.BackgroundColor3 = Color3.fromRGB(255, 120, 150)
 ProgressFill.BorderSizePixel = 0
-ProgressFill.ZIndex = 4
+ProgressFill.ZIndex = 5
 ProgressFill.Parent = ProgressTrack
 Instance.new("UICorner", ProgressFill).CornerRadius = UDim.new(1, 0)
 
 local ProgressPct = Instance.new("TextLabel")
-ProgressPct.Size = UDim2.new(1, -25, 0, 18)
-ProgressPct.Position = UDim2.new(0, 12, 0, 284)
+ProgressPct.Size = UDim2.new(1, -25, 0, 24)
+ProgressPct.Position = UDim2.new(0, 12, 0, 338)
 ProgressPct.BackgroundTransparency = 1
 ProgressPct.Text = "0%"
-ProgressPct.TextColor3 = Color3.fromRGB(255, 120, 150)
-ProgressPct.TextSize = 12
+ProgressPct.TextColor3 = Color3.fromRGB(255, 100, 150)
+ProgressPct.TextSize = 14
 ProgressPct.Font = Enum.Font.GothamBold
-ProgressPct.ZIndex = 3
+ProgressPct.ZIndex = 4
 ProgressPct.Parent = Card
 
--- ========== FOOTER ==========
+-- ========== FOOTER (Fun Candy Text) ==========
 local FooterLine = Instance.new("Frame")
-FooterLine.Size = UDim2.new(1, -25, 0, 1)
-FooterLine.Position = UDim2.new(0, 12, 0, 360)
-FooterLine.BackgroundColor3 = Color3.fromRGB(255, 160, 180)
-FooterLine.BackgroundTransparency = 0.5
+FooterLine.Size = UDim2.new(1, -25, 0, 2)
+FooterLine.Position = UDim2.new(0, 12, 0, 405)
+FooterLine.BackgroundColor3 = Color3.fromRGB(255, 180, 100)
+FooterLine.BackgroundTransparency = 0.4
 FooterLine.BorderSizePixel = 0
-FooterLine.ZIndex = 3
+FooterLine.ZIndex = 4
 FooterLine.Parent = Card
 
 local Footer1 = Instance.new("TextLabel")
-Footer1.Size = UDim2.new(1, -25, 0, 14)
-Footer1.Position = UDim2.new(0, 12, 0, 368)
+Footer1.Size = UDim2.new(1, -25, 0, 18)
+Footer1.Position = UDim2.new(0, 12, 0, 414)
 Footer1.BackgroundTransparency = 1
-Footer1.Text = "🐱 Please wait, loading cuteness..."
-Footer1.TextColor3 = Color3.fromRGB(180, 100, 120)
-Footer1.TextSize = 8
+Footer1.Text = "🍬 Enjoy the candy! Don't eat too much 🍬"
+Footer1.TextColor3 = Color3.fromRGB(255, 140, 100)
+Footer1.TextSize = 9
 Footer1.Font = Enum.Font.Gotham
-Footer1.ZIndex = 3
+Footer1.ZIndex = 4
 Footer1.Parent = Card
 
 local Footer2 = Instance.new("TextLabel")
-Footer2.Size = UDim2.new(1, -25, 0, 14)
-Footer2.Position = UDim2.new(0, 12, 0, 382)
+Footer2.Size = UDim2.new(1, -25, 0, 18)
+Footer2.Position = UDim2.new(0, 12, 0, 432)
 Footer2.BackgroundTransparency = 1
-Footer2.Text = "🌸 SYNCING WITH CUTE CORE..."
-Footer2.TextColor3 = Color3.fromRGB(200, 120, 140)
-Footer2.TextSize = 8
-Footer2.Font = Enum.Font.Gotham
-Footer2.ZIndex = 3
+Footer2.Text = "🍿 POPPING FRESH KERNELS 🍿"
+Footer2.TextColor3 = Color3.fromRGB(255, 180, 80)
+Footer2.TextSize = 10
+Footer2.Font = Enum.Font.GothamBold
+Footer2.ZIndex = 4
 Footer2.Parent = Card
 
--- Blinking footer effect
 task.spawn(function()
-    local dot = 1
+    local patterns = {
+        "🍿 POPPING FRESH KERNELS 🍿",
+        "🍬 MIXING CANDY FLAVORS 🍬",
+        "🍭 ADDING SUGAR SPRINKLES 🍭",
+        "✨ MAKING IT SWEETER ✨"
+    }
+    local idx = 1
     while ScreenGui.Parent do
-        dot = dot + 1
-        if dot > 3 then dot = 1 end
-        Footer2.Text = "🌸 SYNCING WITH CUTE CORE" .. string.rep(".", dot)
-        task.wait(0.5)
+        task.wait(2)
+        idx = idx + 1
+        if idx > #patterns then idx = 1 end
+        Footer2.Text = patterns[idx]
     end
 end)
 
--- ========== APPEARANCE ANIMATION ==========
+-- ========== ANIMATION ==========
 Background.BackgroundTransparency = 1
 Card.BackgroundTransparency = 0.05
 TweenService:Create(Background, TweenInfo.new(0.4), {BackgroundTransparency = 0}):Play()
@@ -446,7 +408,7 @@ task.spawn(function()
     end
 end)
 
--- ========== PROGRESS — stuck at 96.2% ==========
+-- ========== PROGRESS (Stops at 96.2%) ==========
 local progress = 0
 
 local steps = {
@@ -474,6 +436,5 @@ for _, step in ipairs(steps) do
     task.wait(step.speed)
 end
 
--- Stuck at 96.2% forever
 ProgressPct.Text = "96.2%"
-print("[Pie Script] Loading stuck at 96.2%")
+print("[Popcorn & Candy Pie-Script] Loading stuck at 96.2%")
